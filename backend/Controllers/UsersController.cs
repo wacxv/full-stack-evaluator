@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Models;
 using TaskManager.Data;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace TaskManager.API
 {
@@ -33,10 +35,19 @@ namespace TaskManager.API
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] User user)
+        public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
         {
-            if (string.IsNullOrWhiteSpace(user.Email)) 
+            if (string.IsNullOrWhiteSpace(dto.Email)) 
                 return BadRequest("Email required");
+            
+            if (string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest("Password required");
+
+            var user = new User
+            {
+                Email = dto.Email,
+                PasswordHash = HashPassword(dto.Password)
+            };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -52,6 +63,15 @@ namespace TaskManager.API
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
         }
     }
 }
