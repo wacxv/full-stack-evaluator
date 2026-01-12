@@ -20,6 +20,7 @@ var jwtSettings = new JwtSettings
 
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IPasswordValidator, PasswordValidator>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -69,7 +70,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
-app.UseAuthentication();  // Add before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

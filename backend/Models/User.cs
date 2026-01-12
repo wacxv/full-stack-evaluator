@@ -10,7 +10,10 @@ namespace TaskManager.Models
         [JsonIgnore]
         public string PasswordHash { get; set; } = string.Empty;
         
-        public string Role { get; set; } = "User";  // Default role
+        public string Role { get; set; } = "User";
+        
+        [JsonIgnore]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     }

@@ -13,5 +13,10 @@ namespace TaskManager.Models
         [Required(ErrorMessage = "UserId is required")]
         [Range(1, int.MaxValue, ErrorMessage = "Valid UserId required")]
         public int UserId { get; set; }
+
+        public void Normalize()
+        {
+            Title = Title?.Trim() ?? string.Empty;
+        }
     }
 }

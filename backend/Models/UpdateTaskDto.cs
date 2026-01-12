@@ -9,5 +9,10 @@ namespace TaskManager.Models
         public string Title { get; set; } = string.Empty;
         
         public bool IsDone { get; set; }
+
+        public void Normalize()
+        {
+            Title = Title?.Trim() ?? string.Empty;
+        }
     }
 }

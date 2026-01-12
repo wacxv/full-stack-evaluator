@@ -16,11 +16,13 @@ namespace TaskManager.API
     {
         private readonly ApplicationDbContext _context;
         private readonly IJwtService _jwtService;
+        private readonly IPasswordValidator _passwordValidator;
 
-        public UsersController(ApplicationDbContext context, IJwtService jwtService)
+        public UsersController(ApplicationDbContext context, IJwtService jwtService, IPasswordValidator passwordValidator)
         {
             _context = context;
             _jwtService = jwtService;
+            _passwordValidator = passwordValidator;
         }
 
         [HttpPost("login")]
@@ -28,7 +30,10 @@ namespace TaskManager.API
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+            // Normalize email
+            var email = dto.Email?.Trim().ToLower() ?? string.Empty;
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null) return Unauthorized("Invalid email or password");
 
             if (!VerifyPassword(dto.Password, user.PasswordHash))
@@ -78,6 +83,11 @@ namespace TaskManager.API
         public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            dto.Normalize();
+
+            var (isValid, error) = _passwordValidator.ValidatePassword(dto.Password);
+            if (!isValid) return BadRequest(error);
 
             var emailExists = await _context.Users.AnyAsync(u => u.Email == dto.Email);
             if (emailExists) return BadRequest("Email already in use");

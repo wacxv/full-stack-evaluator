@@ -54,6 +54,13 @@ namespace TaskManager.API
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             
+            // Normalize input
+            dto.Normalize();
+            
+            // Validate empty title
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return BadRequest("Title cannot be empty");
+            
             var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
             
             // Tasks can only be created for the authenticated user
@@ -79,6 +86,13 @@ namespace TaskManager.API
         public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            // Normalize input
+            dto.Normalize();
+            
+            // Validate empty title
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return BadRequest("Title cannot be empty");
 
             var userId = int.Parse(User.FindFirst("userId")?.Value ?? "0");
             
