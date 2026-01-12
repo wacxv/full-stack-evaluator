@@ -29,6 +29,7 @@ namespace TaskManager.API
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TaskItem task)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
