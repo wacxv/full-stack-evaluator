@@ -40,6 +40,9 @@ namespace TaskManager.API
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             
+            var userExists = await _context.Users.AnyAsync(u => u.Id == dto.UserId);
+            if (!userExists) return BadRequest("User does not exist");
+            
             var task = new TaskItem
             {
                 Title = dto.Title,
