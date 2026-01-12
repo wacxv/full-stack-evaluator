@@ -54,10 +54,8 @@ namespace TaskManager.API
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             
-            // Normalize input
             dto.Normalize();
             
-            // Validate empty title
             if (string.IsNullOrWhiteSpace(dto.Title))
                 return BadRequest("Title cannot be empty");
             
