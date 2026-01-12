@@ -36,25 +36,32 @@ namespace TaskManager.API
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TaskItem task)
+        public async Task<IActionResult> Create([FromBody] CreateTaskDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            var task = new TaskItem
+            {
+                Title = dto.Title,
+                IsDone = dto.IsDone,
+                UserId = dto.UserId
+            };
             
             _context.Tasks.Add(task);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = task.Id }, task);
         }
 
-        [HttpPut("{id}")] 
-        public async Task<IActionResult> Update(int id, [FromBody] TaskItem updated)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateTaskDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var task = await _context.Tasks.FindAsync(id);
             if (task == null) return NotFound();
 
-            task.Title = updated.Title;
-            task.IsDone = updated.IsDone;
+            task.Title = dto.Title;
+            task.IsDone = dto.IsDone;
             await _context.SaveChangesAsync();
             
             return Ok(task);
