@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using TaskManager.Models;
 using TaskManager.Data;
+
 namespace TaskManager.API
 {
     [Route("tasks")]
@@ -18,11 +19,19 @@ namespace TaskManager.API
             _context = context;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var tasks = await _context.Tasks.ToListAsync();
+            return Ok(tasks);
+        }
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
             var task = await _context.Tasks.FindAsync(id);
             if (task == null) return NotFound();
+            
             return Ok(task);
         }
 
@@ -39,13 +48,15 @@ namespace TaskManager.API
         [HttpPut("{id}")] 
         public async Task<IActionResult> Update(int id, [FromBody] TaskItem updated)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var task = await _context.Tasks.FindAsync(id);
             if (task == null) return NotFound();
 
             task.Title = updated.Title;
             task.IsDone = updated.IsDone;
             await _context.SaveChangesAsync();
-
+            
             return Ok(task);
         }
 
@@ -57,7 +68,7 @@ namespace TaskManager.API
 
             _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
-
+            
             return NoContent();
         }
     }
