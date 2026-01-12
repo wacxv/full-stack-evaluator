@@ -87,10 +87,11 @@ namespace TaskManager.API
             dto.Normalize();
 
             var (isValid, error) = _passwordValidator.ValidatePassword(dto.Password);
-            if (!isValid) return BadRequest(error);
+            if (!isValid) return BadRequest(new { message = error });
 
             var emailExists = await _context.Users.AnyAsync(u => u.Email == dto.Email);
-            if (emailExists) return BadRequest("Email already in use");
+            if (emailExists) 
+                return Conflict(new { message = "Email is already registered. Please login instead." });
 
             var user = new User
             {

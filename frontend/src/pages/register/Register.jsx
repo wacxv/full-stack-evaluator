@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
 import './register.css';
 
 export default function Register() {
@@ -10,17 +11,59 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const validatePassword = (pwd) => {
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasLowerCase = /[a-z]/.test(pwd);
+    const hasNumber = /\d/.test(pwd);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+    const isLongEnough = pwd.length >= 8;
+
+    if (!isLongEnough) return 'Password must be at least 8 characters long';
+    if (!hasUpperCase) return 'Password must contain at least one uppercase letter';
+    if (!hasLowerCase) return 'Password must contain at least one lowercase letter';
+    if (!hasNumber) return 'Password must contain at least one number';
+    if (!hasSpecial) return 'Password must contain at least one special character';
+    
+    return null;
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
 
+    // Validate password match
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
     }
 
+    // Validate password requirements
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     setLoading(true);
-    // Registration logic here...
+
+    try {
+      await api.post('/users/register', { email, password });
+      
+      // Redirect to login page after successful registration
+      navigate('/login', { 
+        state: { message: 'Registration successful! Please login.' } 
+      });
+    } catch (err) {
+      if (err.response?.status === 409) {
+        setError('Email is already registered. Please login instead.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,7 +71,9 @@ export default function Register() {
       <div className="register-grid">
         <div className="register-card">
           <h1>Register</h1>
+          
           {error && <div className="error-message">{error}</div>}
+          
           <form onSubmit={handleRegister} className="register-form">
             <div className="form-group">
               <label htmlFor="email">Email</label>
@@ -41,6 +86,7 @@ export default function Register() {
                 required
               />
             </div>
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -55,6 +101,7 @@ export default function Register() {
                 Password must contain: uppercase, lowercase, number, special character
               </small>
             </div>
+
             <div className="form-group">
               <label htmlFor="confirmPassword">Confirm Password</label>
               <input
@@ -66,10 +113,12 @@ export default function Register() {
                 required
               />
             </div>
+
             <button type="submit" disabled={loading} className="btn-register">
               {loading ? 'Registering...' : 'Register'}
             </button>
           </form>
+
           <div className="auth-link">
             <p>Already have an account? <a href="/login">Login here</a></p>
           </div>
