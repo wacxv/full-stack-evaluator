@@ -1,7 +1,11 @@
 .tasks-container {
-  min-height: 100vh;
+  flex: 1;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .tasks-header {
@@ -13,6 +17,7 @@
   border-radius: 10px;
   margin-bottom: 20px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .tasks-header h1 {
@@ -53,6 +58,9 @@
   grid-template-columns: 1fr;
   max-width: 700px;
   margin: 0 auto;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .tasks-card {
@@ -61,6 +69,8 @@
   padding: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   animation: slideIn 0.5s ease-out;
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 @keyframes slideIn {
