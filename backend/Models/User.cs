@@ -10,7 +10,6 @@ namespace TaskManager.Models
         [JsonIgnore]
         public string PasswordHash { get; set; } = string.Empty;
         
-        [JsonIgnore]
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     }
 }
