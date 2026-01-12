@@ -18,12 +18,12 @@ namespace TaskManager.API
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> Get(int id)
         {
-            
-            var tasks = await _context.Tasks.ToListAsync();
-            return Ok(tasks);
+            var task = await _context.Tasks.FindAsync(id);
+            if (task == null) return NotFound();
+            return Ok(task);
         }
 
         [HttpPost]
