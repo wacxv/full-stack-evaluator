@@ -29,7 +29,8 @@ namespace TaskManager.Services
             {
                 new Claim("userId", user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)  // Add role claim
             };
 
             var token = new JwtSecurityToken(

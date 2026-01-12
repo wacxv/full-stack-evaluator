@@ -6,6 +6,7 @@ using TaskManager.Data;
 using TaskManager.Services;
 using System.Security.Cryptography;
 using System.Text;
+using System.Security.Claims;
 
 namespace TaskManager.API
 {
@@ -42,7 +43,7 @@ namespace TaskManager.API
             });
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]  // Only Admin can see all users
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -58,9 +59,10 @@ namespace TaskManager.API
         public async Task<IActionResult> Get(int id)
         {
             var userId = User.FindFirst("userId")?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             
-            // Only allow users to see their own data
-            if (userId != id.ToString() && !User.IsInRole("Admin"))
+            // Allow admin or owner to view
+            if (userId != id.ToString() && userRole != "Admin")
                 return Forbid("You can only view your own profile");
 
             var user = await _context.Users
@@ -83,7 +85,8 @@ namespace TaskManager.API
             var user = new User
             {
                 Email = dto.Email,
-                PasswordHash = HashPassword(dto.Password)
+                PasswordHash = HashPassword(dto.Password),
+                Role = "User"  // Default role
             };
 
             _context.Users.Add(user);
@@ -103,8 +106,10 @@ namespace TaskManager.API
         public async Task<IActionResult> Delete(int id)
         {
             var userId = User.FindFirst("userId")?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             
-            if (userId != id.ToString() && !User.IsInRole("Admin"))
+            // Allow admin or owner to delete
+            if (userId != id.ToString() && userRole != "Admin")
                 return Forbid("You can only delete your own account");
 
             var user = await _context.Users.FindAsync(id);

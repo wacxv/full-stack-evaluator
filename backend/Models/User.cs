@@ -10,6 +10,8 @@ namespace TaskManager.Models
         [JsonIgnore]
         public string PasswordHash { get; set; } = string.Empty;
         
+        public string Role { get; set; } = "User";  // Default role
+        
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     }
 }
